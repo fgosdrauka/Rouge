@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculateur du Rouge 4000</title>
+
+  <!-- PWA config -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#333">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Rouge 4000">
+  <link rel="apple-touch-icon" href="icon.png">
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+    h1 {
+      text-align: center;
+      background-color: #333;
+      color: #fff;
+      padding: 20px 0;
+      margin: 0;
+    }
+    form {
+      max-width: 400px;
+      margin: 0 auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+    label {
+      display: block;
+      margin-bottom: 10px;
+    }
+    input[type="number"] {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      margin-bottom: 15px;
+    }
+    input[type="number"]:focus {
+      outline: none;
+      border-color: #007bff;
+    }
+  </style>
+</head>
+<body>
+  <h1>Calculateur du Rouge 4000</h1>
+  <form id="proportions-form">
+    <label for="base">Base (ml):</label>
+    <input type="number" id="base" step="0.01" min="0" value="">
+    <label for="nicotine">Nicotine (ml):</label>
+    <input type="number" id="nicotine" step="0.01" min="0" value="">
+    <label for="rouge">Rouge (ml):</label>
+    <input type="number" id="rouge" step="0.01" min="0" value="">
+    <label for="total">Total (ml):</label>
+    <input type="number" id="total" step="0.01" min="0" value="">
+  </form>
+
+  <script>
+    const baseInput = document.getElementById("base");
+    const nicotineInput = document.getElementById("nicotine");
+    const rougeInput = document.getElementById("rouge");
+    const totalInput = document.getElementById("total");
+
+    const basePercentage = 58.5;
+    const nicotinePercentage = 25.2;
+    const rougePercentage = 16.3;
+
+    function round(value) {
+      return Math.round(value * 100) / 100;
+    }
+
+    function handleInputChange(source) {
+      let base = parseFloat(baseInput.value) || 0;
+      let nicotine = parseFloat(nicotineInput.value) || 0;
+      let rouge = parseFloat(rougeInput.value) || 0;
+      let total = parseFloat(totalInput.value) || 0;
+
+      if (source === "total") {
+        baseInput.value = round((basePercentage / 100) * total);
+        nicotineInput.value = round((nicotinePercentage / 100) * total);
+        rougeInput.value = round((rougePercentage / 100) * total);
+      } else if (source === "base") {
+        total = base * 100 / basePercentage;
+        totalInput.value = round(total);
+        nicotineInput.value = round((nicotinePercentage / 100) * total);
+        rougeInput.value = round((rougePercentage / 100) * total);
+      } else if (source === "nicotine") {
+        total = nicotine * 100 / nicotinePercentage;
+        totalInput.value = round(total);
+        baseInput.value = round((basePercentage / 100) * total);
+        rougeInput.value = round((rougePercentage / 100) * total);
+      } else if (source === "rouge") {
+        total = rouge * 100 / rougePercentage;
+        totalInput.value = round(total);
+        baseInput.value = round((basePercentage / 100) * total);
+        nicotineInput.value = round((nicotinePercentage / 100) * total);
+      }
+    }
+
+    baseInput.addEventListener("input", () => handleInputChange("base"));
+    nicotineInput.addEventListener("input", () => handleInputChange("nicotine"));
+    rougeInput.addEventListener("input", () => handleInputChange("rouge"));
+    totalInput.addEventListener("input", () => handleInputChange("total"));
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js')
+        .then(() => console.log("Service worker enregistré"))
+        .catch(err => console.error("Service worker échec :", err));
+    }
+  </script>
+</body>
+</html>
