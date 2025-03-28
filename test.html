@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calculateur du Rouge 4000</title>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#e74c3c" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Rouge 4000" />
+  <link rel="apple-touch-icon" href="icon.png" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    :root {
+      --primary: #e74c3c;
+      --background: #f9f9f9;
+      --card-bg: #ffffff;
+      --text-color: #333;
+      --accent: #3498db;
+      --border: #ddd;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Helvetica Neue", "Segoe UI", Roboto, sans-serif;
+      background-color: var(--background);
+      color: var(--text-color);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    header {
+      background: var(--primary);
+      color: white;
+      padding: 1.8rem 1rem;
+      text-align: center;
+      font-size: 1.75rem;
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    main {
+      flex: 1;
+      padding: 1.5rem 1rem;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    form {
+      width: 100%;
+      max-width: 420px;
+      background: var(--card-bg);
+      border-radius: 1.5rem;
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.06);
+      padding: 2rem;
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    label {
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+      display: block;
+      font-size: 0.95rem;
+      color: #444;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      padding: 0.9rem;
+      font-size: 1.1rem;
+      margin-bottom: 1.5rem;
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      background: #fff;
+      transition: border 0.3s, box-shadow 0.2s;
+    }
+
+    input[type="number"]:focus {
+      border-color: var(--accent);
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.15);
+    }
+
+    button {
+      width: 100%;
+      background-color: var(--accent);
+      color: white;
+      border: none;
+      padding: 1rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border-radius: 1rem;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.1s;
+      margin-top: 0.5rem;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+
+    button:active {
+      transform: scale(0.97);
+    }
+  </style>
+</head>
+<body>
+  <header>Calculateur du Rouge 4000</header>
+
+  <main>
+    <form id="proportions-form">
+      <label for="total"><i class="fas fa-beaker"></i> Total (ml)</label>
+      <input type="number" id="total" step="0.01" min="0" />
+
+      <label for="rouge"><i class="fas fa-tint"></i> Rouge (ml)</label>
+      <input type="number" id="rouge" step="0.01" min="0" />
+
+      <label for="nicotine"><i class="fas fa-fire"></i> Taux de nicotine désiré (mg/ml)</label>
+      <input type="number" id="nicotine" step="0.1" min="0" max="20" value="0" />
+
+      <label for="booster"><i class="fas fa-bolt"></i> Booster (ml)</label>
+      <input type="number" id="booster" step="0.01" min="0" readonly />
+
+      <label for="base"><i class="fas fa-flask"></i> Base (ml)</label>
+      <input type="number" id="base" step="0.01" min="0" readonly />
+
+      <button type="button" onclick="resetForm()">Réinitialiser</button>
+    </form>
+  </main>
+
+  <script>
+    const baseInput = document.getElementById("base");
+    const boosterInput = document.getElementById("booster");
+    const rougeInput = document.getElementById("rouge");
+    const totalInput = document.getElementById("total");
+    const nicotineInput = document.getElementById("nicotine");
+
+    const boosterStrength = 20; // mg/ml
+
+    function round(value) {
+      return Math.round(value * 100) / 100;
+    }
+
+    function calculateFromNicotine() {
+      const desiredNicotine = parseFloat(nicotineInput.value) || 0;
+      const rouge = parseFloat(rougeInput.value) || 0;
+      const total = parseFloat(totalInput.value) || 0;
+
+      if (total <= 0) return;
+
+      if (desiredNicotine === 0) {
+        boosterInput.value = 0;
+        baseInput.value = round(total - rouge);
+        return;
+      }
+
+      const boosterNeeded = (desiredNicotine * total) / boosterStrength;
+      const remaining = total - rouge;
+      const baseNeeded = remaining - boosterNeeded;
+
+      if (baseNeeded < 0) {
+        alert("Trop de Rouge pour atteindre ce taux de nicotine.");
+        return;
+      }
+
+      boosterInput.value = round(boosterNeeded);
+      baseInput.value = round(baseNeeded);
+    }
+
+    function resetForm() {
+      baseInput.value = "";
+      boosterInput.value = "";
+      rougeInput.value = "";
+      totalInput.value = "";
+      nicotineInput.value = 0;
+    }
+
+    totalInput.addEventListener("input", calculateFromNicotine);
+    rougeInput.addEventListener("input", calculateFromNicotine);
+    nicotineInput.addEventListener("input", calculateFromNicotine);
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js')
+        .then(() => console.log("Service worker enregistré"))
+        .catch(err => console.error("Service worker échec :", err));
+    }
+  </script>
+</body>
+</html>
